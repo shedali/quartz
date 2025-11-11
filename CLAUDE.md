@@ -1,15 +1,39 @@
 # Quartz Blog - Claude Instructions
 
+## Development Environment
+
+This Quartz blog uses Nix flakes and direnv for environment management:
+
+```bash
+# Activate the environment (first time)
+direnv allow
+
+# Environment includes: bun, git, rsync, xc, fzf, mdcat
+```
+
+## Task Runner
+
+Use the interactive task picker via Make + xc:
+
+```bash
+make run    # Shows interactive task picker
+xc serve    # Run task directly
+```
+
+Tasks are documented in README.md with xc format.
+
 ## Running with Bun
 
 This Quartz blog runs exclusively with Bun (no npm/node):
 
 ```bash
-# Start development server with live reload
+# Development server with live reload
 bun run quartz/bootstrap-cli.mjs build --serve
-
 # Server runs at http://localhost:8080
 # Auto-rebuilds on file changes in content/
+
+# Just build (no server)
+bun run quartz/bootstrap-cli.mjs build
 ```
 
 ## Obsidian.nvim Integration
@@ -36,8 +60,10 @@ This prevents Quartz from crashing on conform.nvim temp files.
 
 ## Content Structure
 
+The `content/` directory is **symlinked** to `~/dev/shedali/knowledge/posts` for local development.
+
 ```
-content/
+content/ -> ~/dev/shedali/knowledge/posts/
 ├── index.md              # Homepage
 └── *.md                  # Blog posts/notes
 ```
@@ -50,3 +76,49 @@ title: Page Title
 ```
 
 Do NOT duplicate the title as `# Title` in content - Quartz auto-generates it from frontmatter.
+
+## Publishing Workflow
+
+Since content is symlinked, use these scripts before deploying:
+
+### For Local Development (current state)
+Content is symlinked - changes to `~/dev/shedali/knowledge/posts` appear immediately.
+
+### Before Deploying to GitHub Pages
+
+```bash
+# Sync content and deploy
+./sync-content.sh
+git add content/
+git commit -m "Update content"
+git push
+
+# Restore symlink for local dev
+./restore-symlink.sh
+```
+
+Or use xc tasks:
+```bash
+xc publish    # Syncs content and stages for commit
+xc deploy     # Full deploy workflow (sync, commit, push)
+```
+
+**Scripts:**
+- `sync-content.sh` - Copies content from knowledge vault, removes symlink
+- `restore-symlink.sh` - Restores symlink for local development
+
+## GitHub Pages Deployment
+
+The repo is configured with GitHub Actions to automatically deploy to GitHub Pages on push to `v4` branch.
+
+**Workflow**: `.github/workflows/deploy-pages.yaml`
+- Triggers on push to `v4` branch or manual workflow dispatch
+- Uses Bun to install dependencies and build
+- Deploys the `public/` directory to GitHub Pages
+
+**Setup Requirements**:
+1. Enable GitHub Pages in repo settings
+2. Set source to "GitHub Actions"
+3. Content must be synced (not symlinked) before pushing
+
+The workflow automatically handles building and deploying - no manual build step needed after pushing.
