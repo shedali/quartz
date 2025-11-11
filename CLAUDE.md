@@ -53,6 +53,20 @@ python -m http.server --directory result 8080
 
 This build is fully reproducible - it will produce identical output locally and in CI.
 
+**Updating Dependencies Hash:**
+
+When dependencies change (package.json or bun.lockb), update the Nix hash:
+
+```bash
+# Automatically update the hash
+./update-nix-hash.sh
+
+# Or manually:
+# 1. Run: nix build .#deps
+# 2. Copy the correct hash from the error message
+# 3. Update outputHash in flake.nix
+```
+
 ## Obsidian.nvim Integration
 
 The `content/` directory is configured as an obsidian.nvim workspace:

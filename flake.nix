@@ -21,9 +21,38 @@
         pkgs = import nixpkgs {
           inherit system overlays;
         };
+
+        # Fixed-output derivation to fetch dependencies
+        # To update the hash: run 'nix build .#deps' and use the hash from the error message
+        deps = pkgs.stdenv.mkDerivation {
+          name = "quartz-deps";
+          src = ./.;
+
+          nativeBuildInputs = [ pkgs.bun ];
+
+          buildPhase = ''
+            export HOME=$TMPDIR
+            export BUN_INSTALL_CACHE_DIR=$TMPDIR/bun-cache
+
+            # Install dependencies
+            bun install --frozen-lockfile --no-progress
+          '';
+
+          installPhase = ''
+            mkdir -p $out
+            cp -r node_modules $out/
+          '';
+
+          outputHashMode = "recursive";
+          outputHashAlgo = "sha256";
+          outputHash = pkgs.lib.fakeHash;
+        };
       in
       {
         packages = {
+          # Expose deps for hash computation
+          deps = deps;
+
           default = pkgs.stdenv.mkDerivation {
             name = "quartz-site";
             src = ./.;
@@ -34,11 +63,12 @@
             ];
 
             buildPhase = ''
-              # Set HOME for bun cache
+              # Set HOME for bun
               export HOME=$TMPDIR
 
-              # Install dependencies
-              bun install --frozen-lockfile
+              # Copy pre-fetched dependencies
+              cp -r ${deps}/node_modules .
+              chmod -R +w node_modules
 
               # Build the site
               bun run quartz/bootstrap-cli.mjs build
