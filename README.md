@@ -9,59 +9,77 @@ This project uses Nix flakes and direnv for environment management. Run `direnv 
 ## Tasks
 
 Run tasks using the interactive picker:
+
 ```bash
 make run
 ```
 
 Or directly with xc:
+
 ```bash
 xc <task-name>
 ```
 
-## serve
+### serve
+
 Start the Quartz development server with live reload
+
 ```bash
 bun run quartz/bootstrap-cli.mjs build --serve
 ```
 
-## build
+### build
+
 Build the site without starting the server
+
 ```bash
 bun run quartz/bootstrap-cli.mjs build
 ```
 
-## sync-content
+### sync-content
+
 Copy content from Obsidian vault to quartz for deployment (removes symlink)
+
 ```bash
 ./sync-content.sh
 ```
 
-## restore-symlink
+### restore-symlink
+
 Restore symlink to Obsidian vault for local development
+
 ```bash
 ./restore-symlink.sh
 ```
 
-## publish
+### publish
+
 Prepare content for deployment (sync, stage, and show commit prompt)
+
 ```bash
 ./sync-content.sh && git add content/ && echo 'Ready to commit. Run: git commit -m "Update content" && git push'
 ```
 
-## deploy
+### deploy
+
 Deploy to GitHub Pages (syncs content, commits, and pushes)
+
 ```bash
 ./sync-content.sh && git add content/ && git commit -m "Update content" && git push && ./restore-symlink.sh
 ```
 
-## format
+### format
+
 Format code with prettier
+
 ```bash
 npx prettier . --write
 ```
 
-## check
+### check
+
 Type-check and lint without making changes
+
 ```bash
 tsc --noEmit && npx prettier . --check
 ```
