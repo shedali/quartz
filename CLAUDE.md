@@ -22,9 +22,11 @@ xc serve    # Run task directly
 
 Tasks are documented in README.md with xc format.
 
-## Running with Bun
+## Building the Site
 
-This Quartz blog runs exclusively with Bun (no npm/node):
+This Quartz blog runs exclusively with Bun (no npm/node) and has reproducible builds via Nix:
+
+### Local Development (with Bun)
 
 ```bash
 # Development server with live reload
@@ -35,6 +37,21 @@ bun run quartz/bootstrap-cli.mjs build --serve
 # Just build (no server)
 bun run quartz/bootstrap-cli.mjs build
 ```
+
+### Reproducible Build (with Nix)
+
+The same build process used in CI:
+
+```bash
+# Build the site using Nix (produces ./result)
+nix build
+
+# The built site is available in ./result/
+# View locally:
+python -m http.server --directory result 8080
+```
+
+This build is fully reproducible - it will produce identical output locally and in CI.
 
 ## Obsidian.nvim Integration
 
@@ -121,8 +138,12 @@ The repo is configured with GitHub Actions to automatically deploy to GitHub Pag
 
 **Workflow**: `.github/workflows/deploy-pages.yaml`
 
+The CI/CD pipeline uses Nix for fully reproducible builds:
+
 - Triggers on push to `v4` branch or manual workflow dispatch
-- Uses Bun to install dependencies and build
+- Installs Nix using DeterminateSystems/nix-installer-action
+- Uses DeterminateSystems/magic-nix-cache-action for fast, cached builds
+- Builds the site using `nix build` (same command works locally)
 - Deploys the `public/` directory to GitHub Pages
 
 **Setup Requirements**:
@@ -130,5 +151,12 @@ The repo is configured with GitHub Actions to automatically deploy to GitHub Pag
 1. Enable GitHub Pages in repo settings
 2. Set source to "GitHub Actions"
 3. Content must be synced (not symlinked) before pushing
+
+**Benefits of Nix-based CI**:
+
+- **Fully reproducible**: Same build output locally and in CI
+- **Hermetic**: All dependencies pinned via flake.lock
+- **Fast caching**: Magic Nix Cache significantly speeds up builds
+- **No version drift**: Exact same Bun, git, and dependencies everywhere
 
 The workflow automatically handles building and deploying - no manual build step needed after pushing.
