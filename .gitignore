@@ -9,3 +9,8 @@ tsconfig.tsbuildinfo
 private/
 .replit
 replit.nix
+
+# Nix
+result
+result-*
+.direnv
