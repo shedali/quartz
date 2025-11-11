@@ -23,34 +23,59 @@
         };
       in
       {
-        packages = {
-          default = pkgs.stdenv.mkDerivation {
-            name = "quartz-site";
-            src = ./.;
+        packages =
+          let
+            # Fixed-output derivation for Bun dependencies
+            bunDeps = pkgs.stdenv.mkDerivation {
+              name = "bun-deps";
+              src = ./.;
 
-            nativeBuildInputs = with pkgs; [
-              bun
-              git
-            ];
+              nativeBuildInputs = [ pkgs.bun ];
 
-            buildPhase = ''
-              # Set HOME for bun cache
-              export HOME=$TMPDIR
+              buildPhase = ''
+                export HOME=$TMPDIR
+                bun install --frozen-lockfile --no-progress
+              '';
 
-              # Install dependencies
-              bun install --frozen-lockfile
+              installPhase = ''
+                mkdir -p $out
+                cp -r node_modules $out/
+              '';
 
-              # Build the site
-              bun run quartz/bootstrap-cli.mjs build
-            '';
+              outputHashMode = "recursive";
+              outputHashAlgo = "sha256";
+              outputHash = pkgs.lib.fakeHash;
+            };
+          in
+          {
+            default = pkgs.stdenv.mkDerivation {
+              name = "quartz-site";
+              src = ./.;
 
-            installPhase = ''
-              # Copy the built site to output
-              mkdir -p $out
-              cp -r public/* $out/
-            '';
+              nativeBuildInputs = with pkgs; [
+                bun
+                git
+              ];
+
+              buildPhase = ''
+                # Set HOME for bun cache
+                export HOME=$TMPDIR
+
+                # Copy dependencies from fixed-output derivation
+                cp -r ${bunDeps}/node_modules .
+                chmod -R u+w node_modules
+
+                # Build the site
+                bun run quartz/bootstrap-cli.mjs build
+              '';
+
+              installPhase = ''
+                # Copy the built site to output
+                mkdir -p $out
+                cp -r public/* $out/
+              '';
+            };
           };
-        };
 
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs;[
