@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - v4
+      - '**'  # Build on all branches
   workflow_dispatch:
 
 permissions:
@@ -43,6 +43,7 @@ jobs:
           path: ./public
 
   deploy:
+    if: github.ref == 'refs/heads/v4'  # Only deploy from v4 branch
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
