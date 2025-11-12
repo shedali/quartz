@@ -44,7 +44,7 @@
 
               outputHashMode = "recursive";
               outputHashAlgo = "sha256";
-              outputHash = pkgs.lib.fakeHash;
+              outputHash = "sha256-EbwWa9J6MDlwC7elRPvb2KefTKoGcRUFCGzLTq7c3FM="
             };
           in
           {
