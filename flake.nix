@@ -26,26 +26,22 @@
         packages =
           let
             # Fixed-output derivation for Bun dependencies
-            bunDeps = pkgs.stdenv.mkDerivation {
-              name = "bun-deps";
-              src = ./.;
-
-              nativeBuildInputs = [ pkgs.bun ];
-
-              buildPhase = ''
+            bunDeps = pkgs.runCommand "bun-deps"
+              {
+                outputHashMode = "recursive";
+                outputHashAlgo = "sha256";
+                outputHash = "sha256-EbwWa9J6MDlwC7elRPvb2KefTKoGcRUFCGzLTq7c3FM=";
+                nativeBuildInputs = [ pkgs.bun ];
+              }
+              ''
                 export HOME=$TMPDIR
+                cp -r ${./.} ./source
+                chmod -R u+w ./source
+                cd ./source
                 bun install --frozen-lockfile --no-progress
-              '';
-
-              installPhase = ''
                 mkdir -p $out
                 cp -r node_modules $out/
               '';
-
-              outputHashMode = "recursive";
-              outputHashAlgo = "sha256";
-              outputHash = "sha256-EbwWa9J6MDlwC7elRPvb2KefTKoGcRUFCGzLTq7c3FM=";
-            };
           in
           {
             default = pkgs.stdenv.mkDerivation {
