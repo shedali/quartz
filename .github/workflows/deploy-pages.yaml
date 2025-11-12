@@ -43,7 +43,7 @@ jobs:
           path: ./public
 
   deploy:
-    if: github.ref == 'refs/heads/v4'  # Only deploy from v4 branch
+    if: github.ref == 'refs/heads/main'  # Only deploy from main branch
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
