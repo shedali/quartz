@@ -36,36 +36,20 @@ Build the site without starting the server
 bun run quartz/bootstrap-cli.mjs build
 ```
 
-### sync-content
-
-Copy content from Obsidian vault to quartz for deployment (removes symlink)
-
-```bash
-./sync-content.sh
-```
-
-### restore-symlink
-
-Restore symlink to Obsidian vault for local development
-
-```bash
-./restore-symlink.sh
-```
-
 ### publish
 
-Prepare content for deployment (sync, stage, and show commit prompt)
+Stage content changes and show diff
 
 ```bash
-./sync-content.sh && git add content/ && echo 'Ready to commit. Run: git commit -m "Update content" && git push'
+git add content/ && git status && git diff --staged --stat
 ```
 
 ### deploy
 
-Deploy to GitHub Pages (syncs content, commits, and pushes)
+Deploy to GitHub Pages (commit and push)
 
 ```bash
-./sync-content.sh && git add content/ && git commit -m "Update content" && git push && ./restore-symlink.sh
+git add content/ && git commit -m "Update content" && git push
 ```
 
 ### format
@@ -84,18 +68,14 @@ Type-check and lint without making changes
 tsc --noEmit && npx prettier . --check
 ```
 
-## Scripts
-
-All tasks above are defined as xc tasks and call these scripts:
-
-- **`sync-content.sh`** - Copies content from `~/dev/shedali/knowledge/posts` to `content/`, removing symlink for deployment
-- **`restore-symlink.sh`** - Restores symlink from `content/` to `~/dev/shedali/knowledge/posts` for local development
-
 ## Content Structure
 
-- **Local development**: `content/` is a symlink to `~/dev/shedali/knowledge/posts`
-- **Deployment**: Run `sync-content` to copy files and remove symlink before committing
-- **After deployment**: Run `restore-symlink` to continue local development
+The `content/` directory is the **source of truth** for all blog posts and notes. Edit files directly in this directory, either:
+- Locally on your Mac
+- Via GitHub web editor
+- On mobile/iPad using Working Copy or similar git clients
+
+All changes should be committed to git. No symlinks, no sync scripts - just edit, commit, and push.
 
 ## Configuration
 
@@ -104,7 +84,25 @@ All tasks above are defined as xc tasks and call these scripts:
 - **obsidian.nvim**: Configured with "quartz" workspace pointing to `content/`
 - **Nix environment**: `flake.nix` provides bun, git, rsync, xc, fzf, mdcat
 
+## Publishing Workflow
+
+1. **Write content**: Edit markdown files in `content/` directory
+2. **Preview locally**: `xc serve` or `make run`
+3. **Deploy**:
+   - Quick: `xc deploy` (commits with "Update content")
+   - Custom: `git add content/ && git commit -m "your message" && git push`
+4. **Live in ~1-2 minutes**: https://shedali.github.io/quartz/
+
+## Mobile Editing
+
+Edit from anywhere using:
+- **GitHub Web Editor**: Press `.` on any file in GitHub
+- **Working Copy** (iOS): Full-featured git client
+- **GitHub Mobile App**: Quick edits on the go
+
+All changes automatically deploy via GitHub Actions.
+
 ## Links
 
 - [Quartz Documentation](https://quartz.jzhao.xyz/)
-- [Obsidian Vault](~/dev/shedali/knowledge/)
+- [Live Site](https://shedali.github.io/quartz/)

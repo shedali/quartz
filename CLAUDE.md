@@ -81,10 +81,10 @@ This prevents Quartz from crashing on conform.nvim temp files.
 
 ## Content Structure
 
-The `content/` directory is **symlinked** to `~/dev/shedali/knowledge/posts` for local development.
+The `content/` directory is the **source of truth** for all blog content.
 
 ```
-content/ -> ~/dev/shedali/knowledge/posts/
+content/
 ├── index.md              # Homepage
 └── *.md                  # Blog posts/notes
 ```
@@ -97,66 +97,61 @@ title: Page Title
 ---
 ```
 
-Do NOT duplicate the title as `# Title` in content - Quartz auto-generates it from frontmatter.
+**Important**: Do NOT duplicate the title as `# Title` in content - Quartz auto-generates it from frontmatter. When using obsidian.nvim, delete the auto-generated H1 heading it creates after frontmatter.
 
 ## Publishing Workflow
 
-Since content is symlinked, use these scripts before deploying:
+Content is directly committed to the repository, enabling editing from anywhere.
 
-### For Local Development (current state)
-
-Content is symlinked - changes to `~/dev/shedali/knowledge/posts` appear immediately.
-
-### Before Deploying to GitHub Pages
+### Local Development
 
 ```bash
-# Sync content and deploy
-./sync-content.sh
+# Edit files in content/ directory
+# Preview changes:
+xc serve       # or: bun run quartz/bootstrap-cli.mjs build --serve
+# Visit http://localhost:8080
+```
+
+### Deploy to GitHub Pages
+
+```bash
+# Option 1: Quick deploy
+xc deploy      # Commits with "Update content" and pushes
+
+# Option 2: Custom commit message
 git add content/
-git commit -m "Update content"
+git commit -m "Add post about X"
 git push
-
-# Restore symlink for local dev
-./restore-symlink.sh
 ```
 
-Or use xc tasks:
+### Mobile Editing
 
-```bash
-xc publish    # Syncs content and stages for commit
-xc deploy     # Full deploy workflow (sync, commit, push)
-```
+Edit from anywhere:
+- **GitHub Web Editor**: Press `.` on any file in the GitHub repo
+- **Working Copy** (iOS): Full-featured git client for iOS
+- **GitHub Mobile App**: Quick edits on the go
 
-**Scripts:**
-
-- `sync-content.sh` - Copies content from knowledge vault, removes symlink
-- `restore-symlink.sh` - Restores symlink for local development
+All changes automatically trigger GitHub Actions deployment. Site updates in ~1-2 minutes.
 
 ## GitHub Pages Deployment
 
-The repo is configured with GitHub Actions to automatically deploy to GitHub Pages on push to `v4` branch.
+The repo is configured with GitHub Actions to automatically deploy to GitHub Pages on push to `main` branch.
 
 **Workflow**: `.github/workflows/deploy-pages.yaml`
 
-The CI/CD pipeline uses Nix for fully reproducible builds:
+The CI/CD pipeline uses Bun for fast builds:
 
-- Triggers on push to `v4` branch or manual workflow dispatch
-- Installs Nix using DeterminateSystems/nix-installer-action
-- Uses DeterminateSystems/magic-nix-cache-action for fast, cached builds
-- Builds the site using `nix build` (same command works locally)
+- Triggers on push to `main` branch (or any branch) or manual workflow dispatch
+- Uses `oven-sh/setup-bun@v2` to install Bun
+- Runs `bun install` to install dependencies
+- Builds the site using `bun run quartz/bootstrap-cli.mjs build`
 - Deploys the `public/` directory to GitHub Pages
+- Build time: ~11-14 seconds
 
-**Setup Requirements**:
+**GitHub Pages Settings**:
 
-1. Enable GitHub Pages in repo settings
-2. Set source to "GitHub Actions"
-3. Content must be synced (not symlinked) before pushing
-
-**Benefits of Nix-based CI**:
-
-- **Fully reproducible**: Same build output locally and in CI
-- **Hermetic**: All dependencies pinned via flake.lock
-- **Fast caching**: Magic Nix Cache significantly speeds up builds
-- **No version drift**: Exact same Bun, git, and dependencies everywhere
+- Source: "GitHub Actions"
+- Deployment branches: `main` and `v4` are both allowed
+- Live URL: https://shedali.github.io/quartz/
 
 The workflow automatically handles building and deploying - no manual build step needed after pushing.
