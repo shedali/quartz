@@ -3,8 +3,6 @@ category: article
 title: Nix Quickstart - for people in a hurry
 ---
 
-# Nix Quickstart
-
 ## Install nix
 
 ```shell
