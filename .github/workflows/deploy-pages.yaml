@@ -22,20 +22,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v21
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
 
-      - name: Setup Magic Nix Cache
-        uses: DeterminateSystems/magic-nix-cache-action@v13
+      - name: Install dependencies
+        run: bun install
 
-      - name: Build site with Nix
-        run: nix build
-
-      - name: Prepare artifacts
-        run: |
-          # Copy built site from Nix store to ./public for upload
-          mkdir -p public
-          cp -r result/* public/
+      - name: Build site
+        run: bun run quartz/bootstrap-cli.mjs build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
