@@ -35,7 +35,29 @@ export const defaultContentPageLayout: PageLayout = {
         { Component: Component.ReaderMode() },
       ],
     }),
-    Component.Explorer(),
+    Component.Explorer({
+      title: "Navigation", // Custom title instead of "Explorer"
+      folderClickBehavior: "link", // Options: "link" or "collapse"
+      folderDefaultState: "open", // Options: "open" or "collapsed"
+      useSavedState: true, // Remember expanded/collapsed state
+      sortFn: (a, b) => {
+        // Custom sort: folders first, then alphabetical
+        if ((!a.file && !b.file) || (a.file && b.file)) {
+          return a.displayName.localeCompare(b.displayName)
+        }
+        if (a.file && !b.file) {
+          return 1
+        } else {
+          return -1
+        }
+      },
+      filterFn: (node) => node.name !== "tags", // Hide specific folders
+      mapFn: (node) => {
+        // Don't show file extensions
+        node.displayName = node.displayName.replace(".md", "")
+      },
+      order: ["filter", "map", "sort"], // Processing order
+    }),
   ],
   right: [
     Component.Graph(),
@@ -59,7 +81,27 @@ export const defaultListPageLayout: PageLayout = {
         { Component: Component.Darkmode() },
       ],
     }),
-    Component.Explorer(),
+    Component.Explorer({
+      title: "Navigation",
+      folderClickBehavior: "link",
+      folderDefaultState: "open",
+      useSavedState: true,
+      sortFn: (a, b) => {
+        if ((!a.file && !b.file) || (a.file && b.file)) {
+          return a.displayName.localeCompare(b.displayName)
+        }
+        if (a.file && !b.file) {
+          return 1
+        } else {
+          return -1
+        }
+      },
+      filterFn: (node) => node.name !== "tags",
+      mapFn: (node) => {
+        node.displayName = node.displayName.replace(".md", "")
+      },
+      order: ["filter", "map", "sort"],
+    }),
   ],
   right: [],
 }
