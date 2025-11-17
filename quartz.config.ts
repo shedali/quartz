@@ -72,6 +72,19 @@ const config: QuartzConfig = {
       Plugin.CrawlLinks({ markdownLinkResolution: "shortest" }),
       Plugin.Description(),
       Plugin.Latex({ renderEngine: "katex" }),
+      Plugin.Citations({
+        bibliographyFile: [
+          "https://raw.githubusercontent.com/shedali/citations/main/engineering.bib",
+          "https://raw.githubusercontent.com/shedali/citations/main/health.bib",
+          "https://raw.githubusercontent.com/shedali/citations/main/business.bib",
+          "https://raw.githubusercontent.com/shedali/citations/main/politics.bib",
+          "https://raw.githubusercontent.com/shedali/citations/main/psychology.bib",
+          "https://raw.githubusercontent.com/shedali/citations/main/writing.bib",
+        ],
+        suppressBibliography: false,
+        linkCitations: true,
+        csl: "apa",
+      }),
     ],
     filters: [Plugin.RemoveDrafts()],
     emitters: [

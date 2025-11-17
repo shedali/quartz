@@ -99,6 +99,51 @@ title: Page Title
 
 **Important**: Do NOT duplicate the title as `# Title` in content - Quartz auto-generates it from frontmatter. When using obsidian.nvim, delete the auto-generated H1 heading it creates after frontmatter.
 
+## Academic Citations
+
+Quartz has full academic citation support via the Citations plugin (configured in `quartz.config.ts:75-87`).
+
+### Citation Syntax
+
+Use standard Pandoc citation syntax in your markdown:
+
+```markdown
+According to research [@citation-key], this is important.
+
+Multiple citations [@key1; @key2; @key3].
+
+In-text citation: @citation-key says that...
+
+## References
+Bibliography auto-generates here
+```
+
+### Bibliography Sources
+
+Citations are fetched from GitHub-hosted `.bib` files (no local files needed):
+
+- `https://raw.githubusercontent.com/shedali/citations/main/engineering.bib`
+- `https://raw.githubusercontent.com/shedali/citations/main/health.bib`
+- `https://raw.githubusercontent.com/shedali/citations/main/business.bib`
+- `https://raw.githubusercontent.com/shedali/citations/main/politics.bib`
+- `https://raw.githubusercontent.com/shedali/citations/main/psychology.bib`
+- `https://raw.githubusercontent.com/shedali/citations/main/writing.bib`
+
+All files are merged automatically. Add new entries to the [citations repository](https://github.com/shedali/citations).
+
+### Citation Style
+
+Currently using APA style (`csl: "apa"`). Can be changed to:
+- `"chicago"`
+- `"ieee"`
+- `"mla"`
+- `"harvard"`
+- Or custom CSL file URL
+
+### Example Post
+
+See `content/test-citations.md` for a working example.
+
 ## Publishing Workflow
 
 Content is directly committed to the repository, enabling editing from anywhere.
